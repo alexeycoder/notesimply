@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from entities import Note
+from .entities import Note
 from typing import Iterator, Generator, Optional
 import pathlib
 import warnings
@@ -91,8 +91,9 @@ class QueryableNotes:
                     return step()
                 entry.id = id
 
-            except Exception:
+            except Exception as e:
                 warnings.warn(f"Ошибка: Не удалось прочитать заметку {id}.")
+                # print(e)
                 return step()
 
             return entry
