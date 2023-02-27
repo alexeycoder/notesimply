@@ -57,7 +57,7 @@ class QueryableNotes:
 
     def add(self, entry: Note) -> Optional[Note]:
         if entry is None:
-            raise ValueError("entry")
+            raise TypeError(entry)
 
         id = self.__get_next_id()
         entry.id = id
@@ -100,6 +100,9 @@ class QueryableNotes:
         return iter(step, None)
 
     def get(self, id: int) -> Optional[Note]:
+        if id <= 0:
+            raise ValueError(id)
+        
         filename = id_to_filename(id)
         entry_path = self.__path.joinpath(filename)
         if entry_path.exists():
@@ -116,8 +119,10 @@ class QueryableNotes:
         return None
 
     def update(self, entry: Note) -> bool:
-        if entry is None or entry.id is None:
-            raise ValueError("entry")
+        if entry is None:
+            raise TypeError(entry)
+        if entry.id is None or entry.id <= 0:
+            raise ValueError(entry.id)
 
         filename = id_to_filename(entry.id)
         entry_path = self.__path.joinpath(filename)
@@ -133,6 +138,9 @@ class QueryableNotes:
         return False
 
     def delete(self, id: int) -> Optional[Note]:
+        if id <= 0:
+            raise ValueError(id)
+        
         filename = id_to_filename(id)
         entry_path = self.__path.joinpath(filename)
         if not entry_path.exists():
@@ -157,6 +165,8 @@ class QueryableNotes:
 
         return entry
 
+
+# module utils
 
 def id_to_filename(id: int) -> str:
     return FILENAME_TEMPLATE.format(id)
