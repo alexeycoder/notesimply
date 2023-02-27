@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 import warnings
 import json
 import utils
@@ -12,7 +13,7 @@ WARN_CANNOT_SAVE = ("Ошибка:"
                     "Возможно доступ к файлу заблокирован.")
 
 __settings = {
-    "data_path": "data"
+    "data_path": "data.d"
 }
 
 
@@ -44,9 +45,10 @@ def __init():
     if not os.path.isfile(SETTINGS_FILE_PATH):
         return
 
+    raw_settings: Optional[dict] = None
     try:
         with open(SETTINGS_FILE_PATH, 'rt', encoding='UTF-8') as file:
-            raw_settings: dict = json.load(file)
+            raw_settings = json.load(file)
     except OSError:
         warnings.warn(WARN_CANNOT_OPEN)
 
