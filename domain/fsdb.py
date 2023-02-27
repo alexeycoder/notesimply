@@ -1,4 +1,3 @@
-import os
 import json
 from datetime import datetime
 from entities import Note
@@ -13,9 +12,12 @@ FILENAME_TEMPLATE = FILENAME_BLANK.format(f"{{0:0{FILENAME_DIGITS}d}}")
 FILENAME_ID_SLICE = slice(4, 4+FILENAME_DIGITS)
 NOTE_ATTRIBUTES = set(
     vars(Note(None, datetime.min, datetime.min, "", "")).keys())
+ENCODING = 'UTF-8'
 
 
 class QueryableNotes:
+    """Класс для низкоуровневой работы с файловой БД (только базовые CRUD).
+    """
 
     def __init__(self, path_str) -> None:
         path = pathlib.Path(path_str)
@@ -38,25 +40,38 @@ class QueryableNotes:
         id = max(map(lambda p: filename_to_id(p.name), filepaths), default=0)
         return id + 1
 
-    def add(self, entry: Note) -> Optional[Note]:
+    def __write_json(self, entry: Note, entry_path: pathlib.Path):
         assert entry is not None
+        assert entry_path is not None
+        with entry_path.open('w', encoding=ENCODING) as file:
+            json.dump(entry,
+                      file,
+                      ensure_ascii=False,
+                      indent=2,
+                      default=encode_note
+                      )
+
+    def __read_json(self, entry_path: pathlib.Path) -> Optional[Note]:
+        with entry_path.open('r', encoding=ENCODING) as file:
+            return json.load(file, object_hook=decode_note)
+
+    def add(self, entry: Note) -> Optional[Note]:
+        if entry is None:
+            raise ValueError("entry")
+
         id = self.__get_next_id()
         entry.id = id
         filename = id_to_filename(id)
+        entry_path = self.__path.joinpath(filename)
+        assert not entry_path.exists()
         try:
-            entry_path = self.__path.joinpath(filename)
-            assert not entry_path.exists()
-            with entry_path.open('w') as file:
-                json.dump(entry,
-                          file,
-                          ensure_ascii=False,
-                          indent=2,
-                          default=encode_note
-                          )
+            self.__write_json(entry, entry_path)
             return entry
+
         except Exception:
             warnings.warn(
                 f"Ошибка: Не удалось создать файл заметки {filename}.")
+
         return None
 
     def queryAll(self) -> Iterator[Note]:
@@ -67,32 +82,80 @@ class QueryableNotes:
 
         def step():
             nonlocal filepaths
-            while not (path := next(filepaths)).is_file() or path.stat().st_size == 0:
+            while not (entry_path := next(filepaths)).is_file() or entry_path.stat().st_size == 0:
                 pass
-            id = filename_to_id(path.name)
-            note: Optional[Note] = None
+            id = filename_to_id(entry_path.name)
             try:
-                with path.open('r', encoding='UTF-8') as file:
-                    note = json.load(file, object_hook=decode_note)
-                    if note is None:
-                        return step()
-                    note.id = id
-            except Exception as e:
-                warnings.warn(
-                    f"Ошибка: Не удалось прочитать файл заметки {id}.")
+                entry = self.__read_json(entry_path)
+                if entry is None:
+                    return step()
+                entry.id = id
+
+            except Exception:
+                warnings.warn(f"Ошибка: Не удалось прочитать заметку {id}.")
                 return step()
-            return note
+
+            return entry
 
         return iter(step, None)
 
     def get(self, id: int) -> Optional[Note]:
-        ...
+        filename = id_to_filename(id)
+        entry_path = self.__path.joinpath(filename)
+        if entry_path.exists():
+            try:
+                entry = self.__read_json(entry_path)
+                if entry is not None:
+                    entry.id = id
+
+                return entry
+
+            except Exception:
+                warnings.warn(f"Ошибка: Не удалось прочитать заметку {id}.")
+
+        return None
 
     def update(self, entry: Note) -> bool:
-        ...
+        if entry is None or entry.id is None:
+            raise ValueError("entry")
+
+        filename = id_to_filename(entry.id)
+        entry_path = self.__path.joinpath(filename)
+        assert entry_path.exists()
+        try:
+            self.__write_json(entry, entry_path)
+            return True
+
+        except Exception:
+            warnings.warn(
+                f"Ошибка: Не удалось обновить файл заметки {filename}.")
+
+        return False
 
     def delete(self, id: int) -> Optional[Note]:
-        ...
+        filename = id_to_filename(id)
+        entry_path = self.__path.joinpath(filename)
+        if not entry_path.exists():
+            return None
+
+        entry = None
+        try:
+            entry = self.__read_json(entry_path)
+            if entry is not None:
+                entry.id = id
+
+        except Exception:
+            warnings.warn(
+                f"Ошибка: Не удалось прочитать удаляемую заметку {id}.")
+
+        try:
+            entry_path.unlink()
+
+        except Exception:
+            warnings.warn(
+                f"Ошибка: Не удалось удалить файл заметки {id}.")
+
+        return entry
 
 
 def id_to_filename(id: int) -> str:
@@ -143,35 +206,35 @@ def decode_note(dct: dict):
         '\n'.join(dct['body'])
     )
 
+# if __name__ == '__main__':
 
-if __name__ == '__main__':
+#     import entities
 
-    import entities
+#     str_data = json.dumps(entities.test_note,
+#                           ensure_ascii=False,
+#                           indent=2,
+#                           default=encode_note
+#                           )
+#     print(str_data)
+#     print("*****")
+#     loaded_note = json.loads(str_data, object_hook=decode_note)
+#     print(type(loaded_note))
+#     print(loaded_note)
+#     print("=====")
+#     print(NOTE_ATTRIBUTES)
+#     print("=====")
+#     qn = QueryableNotes('data')
+#     lst = list(qn.queryAll())
+#     print(lst)
+#     for n in qn.queryAll():
+#         print("~~~~~")
+#         print(n)
+#         print("~~~~~")
+#     qn.delete(4)
 
-    str_data = json.dumps(entities.test_note,
-                          ensure_ascii=False,
-                          indent=2,
-                          default=encode_note
-                          )
-    print(str_data)
-    print("*****")
-    loaded_note = json.loads(str_data, object_hook=decode_note)
-    print(type(loaded_note))
-    print(loaded_note)
-    print("=====")
-    print(NOTE_ATTRIBUTES)
-    print("=====")
-    qn = QueryableNotes('data')
-    lst = list(qn.queryAll())
-    print(lst)
-    for n in qn.queryAll():
-        print("~~~~~")
-        print(n)
-        print("~~~~~")
-
-    # print(qn.__get_next_id())
-    # print(qn._QueryableNotes__get_next_id())
-    # print(qn.get_next_id_public())
+#     print(qn.__get_next_id())
+#     print(qn._QueryableNotes__get_next_id())
+#     print(qn.get_next_id_public())
 
 
 # class NotesIterator(Iterator[Note]):
