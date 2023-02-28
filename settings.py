@@ -13,7 +13,7 @@ WARN_CANNOT_SAVE = ("Ошибка:"
                     "Возможно доступ к файлу заблокирован.")
 
 __settings = {
-    "data_path": "data.d"
+    "data_path": ".data.d"
 }
 
 

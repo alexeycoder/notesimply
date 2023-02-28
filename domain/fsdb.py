@@ -1,9 +1,10 @@
 import json
-from datetime import datetime
-from .entities import Note
-from typing import Iterator, Generator, Optional
 import pathlib
 import warnings
+from datetime import datetime
+from typing import Generator, Iterator, Optional
+
+from .entities import Note
 
 FILENAME_BLANK = "note{}.json"
 FILENAME_DIGITS = 5
