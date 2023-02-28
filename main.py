@@ -10,7 +10,6 @@ def run_app():
     notes_repo = NotesRepository(data_path)
     controller.run_lifecycle(notes_repo)
 
-
 def __test():
     notes_repo = NotesRepository('data')
     notes = notes_repo.get_all_notes()
@@ -42,9 +41,5 @@ def __test():
 
 
 if __name__ == '__main__':
-    __test()
-
-    # def func(note):
-    #     if note is None:
-    #         raise TypeError(note)
-    # func(None)
+    # __test()
+    run_app()

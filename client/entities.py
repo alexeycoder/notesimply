@@ -3,9 +3,9 @@ from typing import Any, Callable, NamedTuple, Optional
 
 class MenuItem(NamedTuple):
     name: str
-    handler: Callable
+    handler: Optional[Callable]
 
 
 class MenuModel(NamedTuple):
     header: Optional[str]
-    items: dict[Any, MenuItem]
+    items: dict[Any, Optional[MenuItem]]

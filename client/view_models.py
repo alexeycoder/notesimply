@@ -9,10 +9,10 @@ class NoteViewModel:
     DT_FORMAT = '%Y-%m-%d %H:%M'
 
     def __init__(self, note: Note) -> None:
-        header = f"\u25a4 Заметка {note.id} : {note.title}"
+        header = f"\u25a4 Заметка {note.id if note.id else '-'} : {note.title}"
         c_datetime = f"Создана:             {note.creation_date.strftime(NoteViewModel.DT_FORMAT)}"
         m_datetime = f"Последнее изменение: {note.last_change_date.strftime(NoteViewModel.DT_FORMAT)}"
-        body_lst = note.body.splitlines()
+        body_lst = note.body.splitlines() if note.body else ['']
         max_len = max(max(map(len, body_lst)),
                       len(header), len(c_datetime), len(m_datetime))
         thick_div = NoteViewModel.DIVIDER_THICK*max_len
@@ -44,7 +44,7 @@ class MenuViewModel:
         c = MenuViewModel
         keys_max_len = max(len(c.key_to_str(k))
                            for k in menu.items.keys())
-        names_max_len = max(len(str(v.name)) for v in menu.items.values())
+        names_max_len = max(len(str(v.name)) for v in menu.items.values() if v)
 
         h_frame_width = len(c.PADDING)*4 \
             + len(c.SEP) \
@@ -65,6 +65,8 @@ class MenuViewModel:
                            + c.PADDING+c.SEP+c.PADDING
                            + mi.name.ljust(names_max_len)
                            + c.PADDING + c.FRAME_V)
+                          if mi else
+                          (c.FRAME_V+c.PADDING.ljust(h_frame_width)+c.FRAME_V)
                           for k, mi in menu.items.items())
 
         repr_lines.append(c.FRAME_BTM_L
