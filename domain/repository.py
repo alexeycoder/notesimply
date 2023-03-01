@@ -12,6 +12,7 @@ class AttributeKind(Enum):
 
 
 class NotesRepository:
+    NOTES_MIN_ID = 1
 
     def __init__(self, path_str) -> None:
         self.__notes_table = QueryableNotes(path_str)
@@ -27,7 +28,7 @@ class NotesRepository:
     # read
 
     def get_note_by_id(self, note_id: int) -> Optional[Note]:
-        if note_id <= 0:
+        if note_id < NotesRepository.NOTES_MIN_ID:
             raise ValueError(note_id)
 
         return self.__notes_table.get(note_id)
@@ -98,6 +99,6 @@ class NotesRepository:
     # delete
 
     def delete_note(self, note_id: int) -> bool:
-        if note_id <= 0:
+        if note_id < NotesRepository.NOTES_MIN_ID:
             raise ValueError(note_id)
         return self.__notes_table.delete(note_id) is not None
