@@ -1,11 +1,13 @@
-from datetime import datetime, date, time
+import re
+from datetime import date, datetime, time
+from typing import Optional
+
 from client.view_models import MenuViewModel, NoteViewModel
 from domain.entities import Note
-from .entities import MenuItem, MenuModel
-from . import console_view as view
 from domain.repository import AttributeKind, NotesRepository
-from typing import Any, Callable, Iterator, NamedTuple, Optional
-import re
+
+from . import console_view as view
+from .entities import MenuItem, MenuModel
 
 CMD_GO_BACK = ('0',)
 CMD_EXIT = ('й', 'q')

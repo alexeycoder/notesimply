@@ -1,5 +1,6 @@
 from domain.entities import Note
-from .entities import MenuItem, MenuModel
+
+from .entities import MenuModel
 
 
 class NoteViewModel:

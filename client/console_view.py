@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import AbstractSet, Callable, Iterable, Optional
+from typing import AbstractSet, Callable, Optional
 
 PROMPT_ENTER = "\nНажмите Ввод чтобы продолжить..."
 PLEASE_REPEAT = "Пожалуйста попробуйте снова."
@@ -21,8 +21,23 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def safe_input(prompt=None) -> str:
+    try:
+        if prompt is None:
+            return input()
+        else:
+            return input(prompt)
+    except EOFError:
+        exit(1)
+    except Exception:
+        print(("Предупреждение: Возникло исключение при обработке ввода."
+              "Возможно эмулятор терминала не настроен для работы в кодировке utf-8."),
+              file=sys.stderr)
+        return ''
+
+
 def wait_to_proceed():
-    input(PROMPT_ENTER)
+    safe_input(PROMPT_ENTER)
 
 
 def show(view_model=None):
@@ -33,7 +48,7 @@ def show(view_model=None):
 
 
 def ask_yes_no(prompt: str, is_yes_default: bool) -> bool:
-    answer = input(prompt).strip()
+    answer = safe_input(prompt).strip()
 
     if not answer:
         return is_yes_default
@@ -66,7 +81,11 @@ def ask_user_choice(prompt: str, options: AbstractSet):
             out_of_range = False
             print(WARN_WRONG_MENU_ITEM, file=sys.stderr)
 
-        raw_choice = input(prompt)
+        raw_choice = safe_input(prompt)
+        if not raw_choice:
+            out_of_range = True
+            continue
+
         related_option = find_appropriate(raw_choice)
         if related_option is not None:
             return related_option
@@ -99,7 +118,7 @@ def ask_integer_in_range(prompt: str, min: Optional[int] = None, max: Optional[i
 
         try:
             raw_inp = input(prompt)
-            if raw_inp == '':
+            if not raw_inp:
                 return None
 
             num = int(raw_inp)
@@ -120,7 +139,7 @@ def ask_string(prompt: str, check_validity: Optional[Callable[[str], bool]] = No
             if warn_wrong:
                 print(warn_wrong, file=sys.stderr)
 
-        inp = input(prompt)
+        inp = safe_input(prompt)
         if (not inp) or check_validity is None or check_validity(inp):
             return inp
 
@@ -136,7 +155,7 @@ def ask_multiline_text(prompt: str):
     returns_count = 0
     while returns_count < N_RETURNS_TO_FINISH_MULTILINE:
         print(MULTILINE_PROMPT_SIGN, end='')
-        line = input()
+        line = safe_input()
         lines.append(line)
         if line == '':
             returns_count += 1

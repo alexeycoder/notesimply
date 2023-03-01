@@ -1,11 +1,16 @@
 {
-	"creation_date": "2023-01-10 12:15:00",
-	"last_change_date": "2023-01-30 22:30:05",
-	"title": "Пятая заметка",
-	"body": [
-	  "Как принято считать, базовые сценарии поведения пользователей",
-	  "освещают чрезвычайно интересные особенности картины в целом,",
-	  "однако конкретные выводы, разумеется, указаны как претенденты",
-	  "на роль ключевых факторов."
-	]
+  "creation_date": "2023-03-01 07:49:26.114455",
+  "last_change_date": "2023-03-01 08:04:27.251938",
+  "title": "Полезные линки по Пайтону",
+  "body": [
+    "https://docs.python.org/3/tutorial/floatingpoint.html",
+    "https://www.w3schools.com/python/ref_string_format.asp",
+    "",
+    "Ткинтер:",
+    "https://tkdocs.com/tutorial/widgets.html",
+    "https://ccia.ugr.es/mgsilvente/tkinterbook/tkinter-dialog-windows.htm",
+    "",
+    "Jupiter:",
+    "Colab - https://colab.research.google.com"
+  ]
 }

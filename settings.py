@@ -1,7 +1,8 @@
-import os
-from typing import Optional
-import warnings
 import json
+import os
+import warnings
+from typing import Optional
+
 import utils
 
 SETTINGS_FILE_PATH = "settings.json"
@@ -62,7 +63,3 @@ def __init():
 # initialize the module
 
 __init()
-
-if __name__ == '__main__':
-    # save()
-    ...

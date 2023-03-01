@@ -1,6 +1,6 @@
-from datetime import date, datetime, time
+from datetime import date, time
 from enum import Enum, auto
-from typing import Callable, Iterator, Optional
+from typing import Iterator, Optional
 
 from .entities import Note
 from .fsdb import QueryableNotes

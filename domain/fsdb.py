@@ -2,7 +2,7 @@ import json
 import pathlib
 import warnings
 from datetime import datetime
-from typing import Generator, Iterator, Optional
+from typing import Iterator, Optional
 
 from .entities import Note
 
@@ -104,7 +104,7 @@ class QueryableNotes:
     def get(self, id: int) -> Optional[Note]:
         if id <= 0:
             raise ValueError(id)
-        
+
         filename = id_to_filename(id)
         entry_path = self.__path.joinpath(filename)
         if entry_path.exists():
@@ -142,7 +142,7 @@ class QueryableNotes:
     def delete(self, id: int) -> Optional[Note]:
         if id <= 0:
             raise ValueError(id)
-        
+
         filename = id_to_filename(id)
         entry_path = self.__path.joinpath(filename)
         if not entry_path.exists():
@@ -218,36 +218,6 @@ def decode_note(dct: dict):
         '\n'.join(dct['body'])
     )
 
-# if __name__ == '__main__':
-
-#     import entities
-
-#     str_data = json.dumps(entities.test_note,
-#                           ensure_ascii=False,
-#                           indent=2,
-#                           default=encode_note
-#                           )
-#     print(str_data)
-#     print("*****")
-#     loaded_note = json.loads(str_data, object_hook=decode_note)
-#     print(type(loaded_note))
-#     print(loaded_note)
-#     print("=====")
-#     print(NOTE_ATTRIBUTES)
-#     print("=====")
-#     qn = QueryableNotes('data')
-#     lst = list(qn.queryAll())
-#     print(lst)
-#     for n in qn.queryAll():
-#         print("~~~~~")
-#         print(n)
-#         print("~~~~~")
-#     qn.delete(4)
-
-#     print(qn.__get_next_id())
-#     print(qn._QueryableNotes__get_next_id())
-#     print(qn.get_next_id_public())
-
 
 # class NotesIterator(Iterator[Note]):
 #     def __init__(self, filepaths: Generator[pathlib.Path, None, None]) -> None:
@@ -271,3 +241,7 @@ def decode_note(dct: dict):
 #             warnings.warn(f"Ошибка: Не удалось прочитать файл заметки {id}.")
 #             return self.__next__()
 #         return note
+
+
+# if __name__ == '__main__':
+#     print(qn._QueryableNotes__get_next_id())
